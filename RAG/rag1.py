@@ -67,6 +67,7 @@ retriever = vectorstore.as_retriever()
 # Prompt
 prompt = hub.pull("rlm/rag-prompt")
 
+
 # LLM
 model = init_chat_model("gemini-2.0-flash", model_provider="google_genai")
 
