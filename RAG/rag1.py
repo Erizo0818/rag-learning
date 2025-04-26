@@ -6,8 +6,10 @@ from langchain import hub
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.vectorstores import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
+from langchain_huggingface import HuggingFaceEmbeddings
 
 import dotenv
 
@@ -19,6 +21,7 @@ try:
     load_dotenv()
 except ImportError:
     pass
+
 
 os.environ["LANGSMITH_TRACING"] = "true"
 if "LANGSMITH_API_KEY" not in os.environ:
@@ -55,14 +58,11 @@ text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=20
 splits = text_splitter.split_documents(docs)
 
 # Embed
-from sentence_transformers import SentenceTransformer
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 
-model = SentenceTransformer("Linq-AI-Research/Linq-Embed-Mistral")
 vectorstore = Chroma.from_documents(documents=splits, 
-                                    embedding=model)
+                                    embedding=embeddings)
 retriever = vectorstore.as_retriever()
-
-#### RETRIEVAL and GENERATION ####
 
 # Prompt
 prompt = hub.pull("rlm/rag-prompt")
@@ -83,8 +83,7 @@ rag_chain = (
 )
 
 # Question
-rag_chain.invoke("What is Task Decomposition?")
-
+print(rag_chain.invoke("What is Task Decomposition?"))
 
 
 
